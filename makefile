@@ -8,8 +8,7 @@ SALIDA = ejecutable
 #regla que se ejecuta por defecto
 
 all:
-	gcc $(BANDERAS) -pthread main.c hilos.c \
-	 -o $(SALIDA)
+	gcc $(BANDERAS) main.c -o $(SALIDA)
 
 	 ./$(SALIDA)
 
