@@ -1,31 +1,81 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/socket.h>
-
+#include <sys/types.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
+#define EOL '\0'
 int main(){
-    // create a socket
-    int network_socket;
-    network_socket = socket(AF_INET, SOCK_STREAM, 0);
-    // specify an address for the socket
-    struct sockaddr_in server_address;
-    server_address.sin_family = AF_INET;
-    server_address.sin_port = htons(9002);
-    server_address.sin_addr.s_addr = INADDR_ANY;
-    int connection_status = connect(network_socket, (struct sockaddr *) &server_address, sizeof(server_address));
-    // check for error with the connecction
-    if (connection_status == -1){
-        printf("There was an error making connection to the remote socket");
+
+    char *ip = "127.0.0.1";
+    int puerto = 4444;
+    int disponibilidad = 10;
+    int socket_server;
+    int enlace;
+    struct sockaddr_in configutacion_servidor_dir;
+
+    int nuevo_socket;
+    struct sockaddr_in configuracion_nuevo_dir;
+
+    socklen_t len_dir;
+
+    char buffer[1024];
+    pid_t nodo_pid;
+
+    printf("Iniciando Servidor...\n");
+    socket_server = socket(AF_INET, SOCK_STREAM, 0);
+    if(socket_server < 0){
+        printf("Error en la conexion\n");
+        exit(1);
     }
-    //recieve data from the server
-    char server_response[256];
-    recv(network_socket, &server_response, sizeof(server_response),0);
-    //print out the server's response
-    printf("The server sent the data: %s\n",server_response);
-    // and then close the socket
-    close(network_socket);
+    memset(&configutacion_servidor_dir, EOL, sizeof(configutacion_servidor_dir));
+    configutacion_servidor_dir.sin_family = AF_INET;
+    configutacion_servidor_dir.sin_port = htons(puerto);
+    configutacion_servidor_dir.sin_addr.s_addr = inet_addr(ip);
+
+    enlace = bind(socket_server, (struct sockaddr*)&configutacion_servidor_dir, sizeof(configutacion_servidor_dir));
+    if(enlace < 0){
+        printf("Error al establecer la comunicacion.\n");
+        exit(1);
+    }
+    printf("Puerto: %d\n", puerto);
+
+    if(!listen(socket_server, disponibilidad)){
+        printf("Escuchando...\n");
+    }else{
+        printf("Error al intentar hacer la conexion.\n");
+    }
+
+
+    while(1){
+        nuevo_socket = accept(socket_server, (struct sockaddr*)&configuracion_nuevo_dir, &len_dir);
+        if(nuevo_socket < 0){
+            exit(1);
+        }
+        printf("Conexion aceptada de la direccion %s:%d\n", inet_ntoa(configuracion_nuevo_dir.sin_addr), ntohs(configuracion_nuevo_dir.sin_port));
+
+        if((nodo_pid = fork()) == 0){
+            close(socket_server);
+
+            while(1){
+                recv(nuevo_socket, buffer, 1024, 0);
+                if(strcmp(buffer, ":q") == 0){
+                    printf("Desconexion en la direcion %s:%d\n", inet_ntoa(configuracion_nuevo_dir.sin_addr), ntohs(configuracion_nuevo_dir.sin_port));
+                    break;
+                }else{
+                    printf("Cliente: %s\n", buffer);
+                    send(nuevo_socket, buffer, strlen(buffer), 0);
+                    bzero(buffer, sizeof(buffer));
+                }
+            }
+        }
+
+    }
+
+    close(nuevo_socket);
+
     return 0;
 }
