@@ -1,6 +1,18 @@
 
 #include "headers.h"
 
+
+void *recibirEntrada(){
+    char buffer[1024];
+    while(1){
+        printf("Server: ");
+        scanf("%s", &buffer[0]);
+        
+        //broadcast
+        //send(nuevo_socket, buffer, strlen(buffer), 0);
+    }
+}
+
 int main(){
 
     char *ip = "127.0.0.1";
@@ -43,8 +55,12 @@ int main(){
         printf("Error al intentar hacer la conexion.\n");
     }
 
+    pthread_t hiloScan;
+    pthread_create(&hiloScan, NULL, &recibirEntrada, NULL);
 
     while(1){
+        //scanf("%s", &buffer[0]);
+
         nuevo_socket = accept(socket_server, (struct sockaddr*)&configuracion_nuevo_dir, &len_dir);
         if(nuevo_socket < 0){
             exit(1);
