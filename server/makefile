@@ -1,6 +1,6 @@
 #Bloque de variables
 
-BANDERAS = -g -lm --std=c11
+BANDERAS = -g -lm --std=gnu99
 SALIDA = ejecutable
 
 #SALIDA es el nombre final del producto compilado
@@ -8,7 +8,7 @@ SALIDA = ejecutable
 #regla que se ejecuta por defecto
 
 all:
-	gcc $(BANDERAS) main.c -o $(SALIDA)
+	gcc $(BANDERAS) -pthread server.c -lm -o $(SALIDA)
 
 	 ./$(SALIDA)
 

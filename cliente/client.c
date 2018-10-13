@@ -63,6 +63,11 @@ int main(){
             printf("Error al recivir paquetes.\n");
         }else{
             printf("Server: %s\n", buffer);
+            if(!strcmp(buffer, EXIT)){
+                close(socket_cliente);
+                printf("Desconectado del Servidor.\n");
+                exit(1);
+            }
         }
     }
 
