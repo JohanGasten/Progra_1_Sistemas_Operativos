@@ -61,7 +61,7 @@ int main(){
                     break;
                 }else{
                     printf("Cliente: %s\n", buffer);
-                    send(nuevo_socket, buffer, strlen(buffer), 0);
+                    send(nuevo_socket, buffer, strlen(buffer)+1, 0);
                     bzero(buffer, sizeof(buffer));
                 }
             }
