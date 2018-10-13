@@ -18,6 +18,7 @@ int main(){
     char buffer[1024];
     pid_t nodo_pid;
 
+    printf("\nProgra 1 Sistemas Operativos\n\n");
     printf("Iniciando Servidor...\n");
     socket_server = socket(AF_INET, SOCK_STREAM, 0);
     if(socket_server < 0){
@@ -65,7 +66,6 @@ int main(){
                 }
             }
         }
-
     }
 
     close(nuevo_socket);

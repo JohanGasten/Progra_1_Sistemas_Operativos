@@ -49,8 +49,8 @@ int main(){
         // escribir
         printf("Cliente: ");
         scanf("%s", &buffer[0]);
-
-        send(socket_cliente, buffer, strlen(buffer), 0);
+        //buffer[strlen(buffer)] = EOL;
+        send(socket_cliente, buffer, strlen(buffer)+1, 0);
 
         if(!strcmp(buffer, EXIT)){
             close(socket_cliente);
