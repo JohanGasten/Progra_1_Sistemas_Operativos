@@ -10,7 +10,7 @@ SALIDA = ejecutable
 all:
 	gcc $(BANDERAS) -pthread client.c -o $(SALIDA)
 
-	 ./$(SALIDA)
+	./$(SALIDA) config
 
 #regla especial para limpiar
 
