@@ -12,41 +12,44 @@ void *recibirEntrada(){
         //send(nuevo_socket, buffer, strlen(buffer), 0);
     }
 }
-
-int main(){
-
-    char *ip = "127.0.0.1";
-    int puerto = 4444;
-    int disponibilidad = 10;
+void iniciarSocketTCP(char *ip,int puerto,int disponibilidad){
     int socket_server;
     int enlace;
-    struct sockaddr_in configutacion_servidor_dir;
-
     int nuevo_socket;
+
+
+    struct sockaddr_in configutacion_servidor_dir;
     struct sockaddr_in configuracion_nuevo_dir;
 
     socklen_t len_dir;
-
-    char buffer[1024];
     pid_t nodo_pid;
+    char buffer[1024];
+    
 
     printf("\nProgra 1 Sistemas Operativos\n\n");
     printf("Iniciando Servidor...\n");
+
+
     socket_server = socket(AF_INET, SOCK_STREAM, 0);
+    
     if(socket_server < 0){
         printf("Error en la conexion\n");
         exit(1);
     }
+
+
     memset(&configutacion_servidor_dir, EOL, sizeof(configutacion_servidor_dir));
     configutacion_servidor_dir.sin_family = AF_INET;
     configutacion_servidor_dir.sin_port = htons(puerto);
     configutacion_servidor_dir.sin_addr.s_addr = inet_addr(ip);
 
     enlace = bind(socket_server, (struct sockaddr*)&configutacion_servidor_dir, sizeof(configutacion_servidor_dir));
+    
     if(enlace < 0){
         printf("Error al establecer la comunicacion.\n");
         exit(1);
     }
+    
     printf("Puerto: %d\n", puerto);
 
     if(!listen(socket_server, disponibilidad)){
@@ -55,8 +58,8 @@ int main(){
         printf("Error al intentar hacer la conexion.\n");
     }
 
-    pthread_t hiloScan;
-    pthread_create(&hiloScan, NULL, &recibirEntrada, NULL);
+    //pthread_t hiloScan;
+    //pthread_create(&hiloScan, NULL, &recibirEntrada, NULL);
 
     while(1){
         //scanf("%s", &buffer[0]);
@@ -85,6 +88,19 @@ int main(){
     }
 
     close(nuevo_socket);
+}
+
+void iniciarSocketUDP(){
+    printf("HOla\n");
+}
+int main(){
+
+    char *ip = "127.0.0.1";
+    int puerto = 4444;
+    int disponibilidad = 10;
+
+    iniciarSocketTCP(ip,puerto,disponibilidad);
+    
 
     return 0;
 }
