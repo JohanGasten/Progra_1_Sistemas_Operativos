@@ -1,17 +1,43 @@
 
 #include "headers.h"
 
+struct InfoAdd{
+    char *ip;
+    int puerto;
+} *TablaClientes;
 
+
+int len_tabla_clientes;
+
+void iniciarTablaClientes(){
+    TablaClientes = (struct InfoAdd *) malloc(sizeof(struct InfoAdd));
+    len_tabla_clientes = 0;
+}
+void agregarCliente(char *ip,int puerto){
+    len_tabla_clientes++;
+    TablaClientes = (struct InfoAdd *)realloc(TablaClientes,len_tabla_clientes*sizeof(struct InfoAdd));
+    TablaClientes[len_tabla_clientes-1].ip = ip;
+    TablaClientes[len_tabla_clientes-1].puerto = puerto;
+}
+void imprimirClientes(){
+    printf("-------------------------\n" );
+    printf("|\tCliente\t|\tPuerto|\n");
+    for (int i = 0; i < len_tabla_clientes; ++i)
+    {
+        printf("|\t%s\t|\t%d|\n",TablaClientes[i].ip,TablaClientes[i].puerto);
+    }
+    printf("-------------------------\n" );
+}
 void *recibirEntrada(){
     char buffer[1024];
     while(1){
         printf("Server: ");
         scanf("%s", &buffer[0]);
-
         //broadcast
         //send(nuevo_socket, buffer, strlen(buffer), 0);
     }
 }
+
 void iniciarSocketTCP(char *ip,int puerto,int disponibilidad){
     int socket_server;
     int enlace;
@@ -69,8 +95,9 @@ void iniciarSocketTCP(char *ip,int puerto,int disponibilidad){
             exit(1);
         }
         printf("Conexion aceptada de la direccion %s:%d\n", inet_ntoa(configuracion_nuevo_dir.sin_addr), ntohs(configuracion_nuevo_dir.sin_port));
-
-        if((nodo_pid = fork()) == 0){
+        agregarCliente(inet_ntoa(configuracion_nuevo_dir.sin_addr), ntohs(configuracion_nuevo_dir.sin_port));
+        imprimirClientes();
+        if(!(nodo_pid = fork())){
             close(socket_server);
 
             while(1){
@@ -99,6 +126,7 @@ int main(){
     int puerto = 4444;
     int disponibilidad = 10;
 
+    iniciarTablaClientes();
     iniciarSocketTCP(ip,puerto,disponibilidad);
     
 
