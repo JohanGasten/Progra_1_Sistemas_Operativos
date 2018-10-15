@@ -67,7 +67,7 @@ void iniciarSocketTCP(char *ip,int puerto,int disponibilidad){
     memset(&configutacion_servidor_dir, EOL, sizeof(configutacion_servidor_dir));
     configutacion_servidor_dir.sin_family = AF_INET;
     configutacion_servidor_dir.sin_port = htons(puerto);
-    configutacion_servidor_dir.sin_addr.s_addr = inet_addr(ip);
+    configutacion_servidor_dir.sin_addr.s_addr = INADDR_ANY;//inet_addr(ip);
 
     enlace = bind(socket_server, (struct sockaddr*)&configutacion_servidor_dir, sizeof(configutacion_servidor_dir));
     
@@ -117,17 +117,57 @@ void iniciarSocketTCP(char *ip,int puerto,int disponibilidad){
     close(nuevo_socket);
 }
 
-void iniciarSocketUDP(){
-    printf("HOla\n");
+void iniciarSocketUDP(int puerto){
+
+    int sock;                         /* Socket */
+    struct sockaddr_in broadcastAddr; /* Broadcast address */
+    
+    int sendStringLen;       /* Length of string to broadcast */
+
+    int broadcastPermission;          /* Socket opt to set permission to broadcast */
+    
+
+
+    char *sendString = "Johan esta el broadcast";             /* string to broadcast */
+
+    /* Create socket for sending/receiving datagrams */
+    if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0){
+        printf("socket() failed\n");
+    }
+    printf("Socket\n");
+    /* Set socket to allow broadcast */
+    broadcastPermission = 1;
+    if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &broadcastPermission, sizeof(broadcastPermission)) < 0){
+        printf("Error setsockopt()\n");
+    }
+    printf("setsockopt\n");
+    /* Construct local address structure */
+    memset(&broadcastAddr, 0, sizeof(broadcastAddr));   /* Zero out structure */
+    broadcastAddr.sin_family = AF_INET;                 /* Internet address family */
+    broadcastAddr.sin_addr.s_addr = inet_addr("192.168.1.255");/* Broadcast IP address */
+    broadcastAddr.sin_port = htons(puerto);         /* Broadcast port */
+
+    sendStringLen = strlen(sendString);  /* Find length of sendString */
+
+    while(1){
+         /* Broadcast sendString in datagram to clients every 3 seconds*/
+         if (sendto(sock, sendString, sendStringLen, 0, (struct sockaddr *)&broadcastAddr, sizeof(broadcastAddr)) != sendStringLen){
+             printf("sendto error\n");
+         }
+         printf("Tiempo\n");
+        sleep(3);   /* Avoids flooding the network */
+    }
+    /* NOT REACHED */
+
 }
 int main(){
 
     char *ip = "127.0.0.1";
     int puerto = 4444;
     int disponibilidad = 10;
-
     iniciarTablaClientes();
-    iniciarSocketTCP(ip,puerto,disponibilidad);
+    iniciarSocketUDP(puerto);
+    //iniciarSocketTCP(ip,puerto,disponibilidad);
     
 
     return 0;
